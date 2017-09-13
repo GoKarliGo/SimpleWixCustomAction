@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="ThingInstall" Language="1033" Version="1.0.0.0" Manufacturer="ACME" UpgradeCode="15d350fc-fba4-4881-953d-a07dd821d5ea">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate EmbedCab="yes" />
+
+    <Property Id="THING_INSTALL_TYPE" Value="Default" />
+    <Binary Id="THINGSetupCustomActionsDLL"
+            SourceFile="$(var.THINGSetupCustomActions.TargetDir)THINGSetupCustomActions.CA.dll" />
+    <CustomAction Id="SelectClientServerID" 
+                  BinaryKey="THINGSetupCustomActionsDLL"
+                  DllEntry="SelectClientServer" Execute="immediate" Return="check" />
+    <InstallExecuteSequence>
+      <Custom Action="SelectClientServerID" Before="CostInitialize" />
+    </InstallExecuteSequence>
+    
+    <Feature Id="ProductFeature" Title="ThingInstall" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+		</Feature>
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="ThingInstall" />
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+			<Component Id="ServerComponent">
+        <File Name="server.txt" />
+        <Condition>THING_INSTALL_TYPE = &quot;Server&quot;</Condition>
+			</Component>
+      <Component Id="ClientComponent">
+        <File Name="client.txt" />
+        <Condition>THING_INSTALL_TYPE = &quot;Client&quot;</Condition>
+      </Component>
+    </ComponentGroup>
+	</Fragment>
+</Wix>
